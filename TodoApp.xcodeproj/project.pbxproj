@@ -21,6 +21,7 @@
 		A094FBD428A55D3F00B7675D /* TodoLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A094FBD328A55D3F00B7675D /* TodoLoader.swift */; };
 		A094FBD628A55D5200B7675D /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A094FBD528A55D5200B7675D /* HTTPClient.swift */; };
 		A094FBD828A6442700B7675D /* TodoItemsMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A094FBD728A6442700B7675D /* TodoItemsMapper.swift */; };
+		A094FBDB28A68D0700B7675D /* XCTestCase+MemoryLeakTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = A094FBDA28A68D0700B7675D /* XCTestCase+MemoryLeakTracking.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +59,7 @@
 		A094FBD328A55D3F00B7675D /* TodoLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoLoader.swift; sourceTree = "<group>"; };
 		A094FBD528A55D5200B7675D /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
 		A094FBD728A6442700B7675D /* TodoItemsMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItemsMapper.swift; sourceTree = "<group>"; };
+		A094FBDA28A68D0700B7675D /* XCTestCase+MemoryLeakTracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+MemoryLeakTracking.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +132,7 @@
 		A094FBA928A5518A00B7675D /* TodoAppTests */ = {
 			isa = PBXGroup;
 			children = (
+				A094FBD928A68CEC00B7675D /* Helpers */,
 				A094FBC528A551A400B7675D /* Services */,
 				A094FBAA28A5518A00B7675D /* TodoAppTests.swift */,
 			);
@@ -198,8 +201,7 @@
 		A094FBCB28A5540000B7675D /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				A094FBCF28A55CE600B7675D /* RemoteTodoItem.swift */,
-				A094FBD728A6442700B7675D /* TodoItemsMapper.swift */,
+				A094FBCC28A5541600B7675D /* Todo.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -207,9 +209,18 @@
 		A094FBCE28A55CDA00B7675D /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				A094FBCC28A5541600B7675D /* Todo.swift */,
+				A094FBCF28A55CE600B7675D /* RemoteTodoItem.swift */,
+				A094FBD728A6442700B7675D /* TodoItemsMapper.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		A094FBD928A68CEC00B7675D /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				A094FBDA28A68D0700B7675D /* XCTestCase+MemoryLeakTracking.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -359,6 +370,7 @@
 			files = (
 				A094FBC828A551C200B7675D /* LoadTodoTaskFromRemoteUseCase.swift in Sources */,
 				A094FBAB28A5518A00B7675D /* TodoAppTests.swift in Sources */,
+				A094FBDB28A68D0700B7675D /* XCTestCase+MemoryLeakTracking.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

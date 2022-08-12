@@ -20,8 +20,7 @@ class LoadTodoTaskFromRemoteUseCase: XCTestCase {
     
     func test_load_requestsDataFromURLRequest() async {
         // Given
-        let client = HTTPClientSpy(response: anyResponse(), error: nil)
-        let sut = RemoteTodoLoader(urlRequest: anyURLRequest(), client: client)
+        let (sut, client) = makeSUT()
         
         // When
         do {
@@ -29,15 +28,13 @@ class LoadTodoTaskFromRemoteUseCase: XCTestCase {
             XCTFail("It should throw error: ")
         } catch {
             // Then
-            print("**: ", error)
             XCTAssertEqual(client.requests, [anyURLRequest()])
         }
     }
     
     func test_loadTwice_requestsDataFromURLTwice() async {
         // Given
-        let client = HTTPClientSpy(response: anyResponse(), error: nil)
-        let sut = RemoteTodoLoader(urlRequest: anyURLRequest(), client: client)
+        let (sut, client) = makeSUT()
         
         do {
             // When
@@ -60,8 +57,7 @@ class LoadTodoTaskFromRemoteUseCase: XCTestCase {
     
     func test_load_deliversErrorOnClientError() async {
         // Given
-        let client = HTTPClientSpy(response: nil, error: RemoteTodoLoader.Error.connectivity)
-        let sut = RemoteTodoLoader(urlRequest: anyURLRequest(), client: client)
+        let (sut, _) = makeSUT(response: nil, error: RemoteTodoLoader.Error.connectivity)
         
         // When
         do {
@@ -75,9 +71,7 @@ class LoadTodoTaskFromRemoteUseCase: XCTestCase {
     
     func test_load_deliversErrorInNon200HTTPResponse() async {
         // Given
-        let response = (makeItemsJSON([]), HTTPURLResponse(url: anyURL(), statusCode: 400, httpVersion: nil, headerFields: nil)!)
-        let client = HTTPClientSpy(response: response, error: nil)
-        let sut = RemoteTodoLoader(urlRequest: anyURLRequest(), client: client)
+        let (sut, _) = makeSUT(response: anyResponse(data: makeItemsJSON([]), httpURLResponse: anyHTTURLResponse(statusCode: 400)))
         
         // When
         do {
@@ -91,9 +85,7 @@ class LoadTodoTaskFromRemoteUseCase: XCTestCase {
     
     func test_load_deliversErrorOn200HTTPResponseWithInvalidJSON() async {
         // Given
-        let response = (Data("".utf8), HTTPURLResponse(url: anyURL(), statusCode: 200, httpVersion: nil, headerFields: nil)!)
-        let client = HTTPClientSpy(response: response, error: nil)
-        let sut = RemoteTodoLoader(urlRequest: anyURLRequest(), client: client)
+        let (sut, _) = makeSUT(response: anyResponse(data: Data("".utf8)))
         
         // When
         do {
@@ -107,9 +99,7 @@ class LoadTodoTaskFromRemoteUseCase: XCTestCase {
     
     func test_load_deliversNoItemsOn200HTTPResponseWithEmptyJSONList() async {
         // Given
-        let response = (makeItemsJSON([]), HTTPURLResponse(url: anyURL(), statusCode: 200, httpVersion: nil, headerFields: nil)!)
-        let client = HTTPClientSpy(response: response, error: nil)
-        let sut = RemoteTodoLoader(urlRequest: anyURLRequest(), client: client)
+        let (sut, _) = makeSUT(response: anyResponse(data: makeItemsJSON([])))
         
         // When
         do {
@@ -127,10 +117,8 @@ class LoadTodoTaskFromRemoteUseCase: XCTestCase {
         let expectedResult = [item.model]
         let json = makeItemsJSON([item.json])
         
-        let response = (json, HTTPURLResponse(url: anyURL(), statusCode: 200, httpVersion: nil, headerFields: nil)!)
-        let client = HTTPClientSpy(response: response, error: nil)
-        let sut = RemoteTodoLoader(urlRequest: anyURLRequest(), client: client)
-        
+        let (sut, _) = makeSUT(response: anyResponse(data: json))
+
         // When
         do {
             let result = try await sut.load()
@@ -142,10 +130,18 @@ class LoadTodoTaskFromRemoteUseCase: XCTestCase {
     }
     
     func test_load_doesNotDeliverResultAfterSUTInstanceHasBeenDeallocated() {
-
+        
     }
     
     // MARK:
+    
+    private func makeSUT(urlRequest: URLRequest = anyURLRequest(), response: Response? = anyResponse(), error: RemoteTodoLoader.Error? = nil) -> (sut: RemoteTodoLoader, client: HTTPClientSpy) {
+        let client = HTTPClientSpy(response: response, error: error)
+        let sut = RemoteTodoLoader(urlRequest: urlRequest, client: client)
+        trackForMemoryLeaks(sut)
+        trackForMemoryLeaks(client)
+        return (sut, client)
+    }
     
     private func makeItem(id: UUID, title: String? = nil) -> (model: Todo, json: [String: Any]) {
         let item = Todo(id: id, title: title)
@@ -166,15 +162,15 @@ class LoadTodoTaskFromRemoteUseCase: XCTestCase {
     
     private class HTTPClientSpy: HTTPClient {
         private(set) var requests = [URLRequest]()
-        private var response: (Data, HTTPURLResponse)?
+        private var response: Response?
         private var error: Error?
         
-        init(response: (Data, HTTPURLResponse)?, error: Error?) {
+        init(response: Response?, error: Error?) {
             self.response = response
             self.error = error
         }
         
-        func request(from urlRequest: URLRequest) async throws -> (Data, HTTPURLResponse) {
+        func request(from urlRequest: URLRequest) async throws -> Response {
             self.requests.append(urlRequest)
             
             guard let response = response else {
@@ -193,6 +189,10 @@ func anyURLRequest() -> URLRequest {
     URLRequest(url: URL(string: "http://any-url.com")!)
 }
 
-func anyResponse() -> (Data, HTTPURLResponse) {
-    (Data(), HTTPURLResponse())
+func anyResponse(data: Data = Data(), httpURLResponse: HTTPURLResponse = HTTPURLResponse()) -> Response {
+    (data, httpURLResponse)
+}
+
+func anyHTTURLResponse(url: URL = anyURL(), statusCode: Int = 200) -> HTTPURLResponse {
+    HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
 }
